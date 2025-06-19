@@ -1,0 +1,151 @@
+package gg.scala.framework.devtools.command
+
+import com.grinderwolf.swm.api.world.properties.SlimePropertyMap
+import gg.scala.commons.acf.CommandHelp
+import gg.scala.commons.acf.ConditionFailedException
+import gg.scala.commons.acf.annotation.CommandAlias
+import gg.scala.commons.acf.annotation.CommandCompletion
+import gg.scala.commons.acf.annotation.CommandPermission
+import gg.scala.commons.acf.annotation.Default
+import gg.scala.commons.acf.annotation.Description
+import gg.scala.commons.acf.annotation.HelpCommand
+import gg.scala.commons.acf.annotation.Single
+import gg.scala.commons.acf.annotation.Subcommand
+import gg.scala.commons.annotations.commands.AutoRegister
+import gg.scala.commons.annotations.commands.customizer.CommandManagerCustomizer
+import gg.scala.commons.command.ScalaCommand
+import gg.scala.commons.command.ScalaCommandManager
+import gg.scala.commons.issuer.ScalaPlayer
+import gg.scala.framework.devtools.map.MapManageServices
+import gg.scala.framework.shared.map.Map
+import gg.scala.framework.shared.map.MapService
+import gg.scala.framework.shared.map.metadata.anonymous.Bounds
+import gg.scala.framework.shared.map.metadata.anonymous.toPosition
+import gg.scala.framework.shared.map.metadata.impl.MapSpawnMetadata
+import gg.scala.framework.shared.map.utilities.MapMetadataScanUtilities
+import net.evilblock.cubed.util.CC
+import net.evilblock.cubed.util.bukkit.Tasks
+import net.evilblock.cubed.util.bukkit.prompt.InputPrompt
+import org.bukkit.Bukkit
+import org.bukkit.Sound
+
+/**
+ * @author Limo
+ * @date 6/17/2025
+ */
+@AutoRegister
+@CommandAlias("mapmanage")
+@CommandPermission("op")
+object MapManageCommands : ScalaCommand()
+{
+    @Default
+    @HelpCommand
+    fun onHelp(help: CommandHelp)
+    {
+        help.showHelp()
+    }
+
+    @CommandManagerCustomizer
+    fun customize(manager: ScalaCommandManager)
+    {
+        manager.commandCompletions.registerAsyncCompletion("slime-templates") {
+            MapManageServices.loader.listWorlds()
+        }
+    }
+
+    @Subcommand("create")
+    @CommandCompletion("@slime-templates")
+    @Description("Creates a new map on a new Slime world template.")
+    fun onCreate(player: ScalaPlayer, @Single slimeTemplate: String, @Single mapName: String)
+    {
+        if (MapService.mapWithID(mapName) != null)
+        {
+            throw ConditionFailedException(
+                "A map with the ID $mapName already exists."
+            )
+        }
+
+        val world = runCatching {
+            MapManageServices.slimePlugin.loadWorld(
+                MapManageServices.loader,
+                slimeTemplate,
+                true,
+                SlimePropertyMap()
+            )
+        }.getOrNull() ?: throw ConditionFailedException(
+            "The world $slimeTemplate either does not exist or is a locked world due to write being enabled."
+        )
+
+        MapManageServices.slimePlugin.generateWorld(world)
+
+        with(player.bukkit()) {
+            val currentLocation = location
+            val devToolsMap = Bukkit.getWorld(slimeTemplate)
+            teleport(devToolsMap.spawnLocation)
+
+            allowFlight = true
+            isFlying = true
+
+            InputPrompt()
+                .withText("${CC.GREEN}Move to the lowest corner of the map and type something in chat.")
+                .acceptInput { _, _ ->
+                    val lowest = location
+                    playSound(location, Sound.NOTE_PLING, 1.0f, 1.0f)
+
+                    Tasks.delayed(1L) {
+                        InputPrompt()
+                            .withText("${CC.GREEN}Move to the highest corner of the map and type something in chat.")
+                            .acceptInput { _, _ ->
+                                val highest = location
+
+                                sendMessage("${CC.GRAY}Building a metadata copy...")
+                                val bounds = Bounds(
+                                    lowest.toPosition(),
+                                    highest.toPosition()
+                                )
+
+                                val metadata = MapMetadataScanUtilities
+                                    .buildMetadataFor(bounds, devToolsMap)
+
+                                var success = false
+                                if (metadata.metadata.filterIsInstance<MapSpawnMetadata>().size >= 2)
+                                {
+                                    sendMessage("${CC.B_GRAY}(!)${CC.GRAY} Created a metadata copy! We're now going to build the map data model...")
+
+                                    val map = Map(
+                                        name = mapName,
+                                        bounds = bounds,
+                                        metadata = metadata,
+                                        displayName = mapName,
+                                        associatedSlimeTemplate = slimeTemplate
+                                    )
+
+                                    with(MapService.cached()) {
+                                        maps[map.name] = map
+                                        MapService.sync(this)
+
+                                        playSound(location, Sound.FIREWORK_LAUNCH, 1.0f, 1.0f)
+                                        sendMessage("${CC.B_GREEN}(!)${CC.GREEN} Successfully created map ${CC.YELLOW}${map.name}${CC.GREEN}!")
+                                    }
+
+                                    success = true
+                                } else
+                                {
+                                    sendMessage("${CC.B_RED}(!) Failed to create a metadata copy! We found no spawn locations in the map. Please try again.")
+                                }
+
+                                teleport(currentLocation)
+                                Bukkit.unloadWorld(devToolsMap, false)
+
+                                if (success)
+                                {
+                                    sendMessage("${CC.B_GOLD}(!) ${CC.GOLD}Unloaded the DTT world, you're all set! Please note that map changes (adding/deleting maps) won't propagate to the game servers immediately. A restart is required for the changes to take effect.")
+                                }
+                            }
+                            .start(this)
+                    }
+                }
+                .start(this)
+        }
+    }
+}
