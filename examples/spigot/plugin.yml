@@ -1,0 +1,68 @@
+name: MinigamesManager
+version: 1.0.0
+main: gg.scala.framework.examples.spigot.MinigamesManagerPlugin
+api-version: 1.19
+author: YourName
+description: Manages minigame servers using the Minigames Manager Application
+
+commands:
+  creategame:
+    description: Create a new game server
+    usage: /creategame <gametype> <map> [players]
+    permission: minigames.create
+    permission-message: You don't have permission to create game servers!
+    
+  destroygame:
+    description: Destroy a game server
+    usage: /destroygame <serverid>
+    permission: minigames.destroy
+    permission-message: You don't have permission to destroy game servers!
+    
+  listgames:
+    description: List all active game servers
+    usage: /listgames [gametype] [status]
+    permission: minigames.list
+    permission-message: You don't have permission to list game servers!
+    
+  joingame:
+    description: Join a game server
+    usage: /joingame <serverid>
+    permission: minigames.join
+    permission-message: You don't have permission to join game servers!
+
+permissions:
+  minigames.*:
+    description: All minigames permissions
+    children:
+      minigames.create: true
+      minigames.destroy: true
+      minigames.list: true
+      minigames.join: true
+      minigames.admin: true
+  
+  minigames.create:
+    description: Create game servers
+    default: op
+    
+  minigames.destroy:
+    description: Destroy game servers
+    default: op
+    
+  minigames.list:
+    description: List game servers
+    default: true
+    
+  minigames.join:
+    description: Join game servers
+    default: true
+    
+  minigames.admin:
+    description: Admin permissions for minigames
+    default: op
+
+depend:
+  - ProtocolLib
+
+softdepend:
+  - PlaceholderAPI
+  - Vault

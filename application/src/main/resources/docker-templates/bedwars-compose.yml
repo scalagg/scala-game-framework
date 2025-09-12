@@ -1,0 +1,42 @@
+version: '3.8'
+services:
+  bedwars-server:
+    image: ${BEDWARS_IMAGE:-bedwars-server:latest}
+    container_name: ${CONTAINER_NAME:-bedwars-server}
+    ports:
+      - "${PORT:-25565}:25565"
+    environment:
+      - GAME_TYPE=bedwars
+      - MAP_ID=${MAP_ID}
+      - SERVER_ID=${SERVER_ID}
+      - MAX_PLAYERS=${MAX_PLAYERS:-16}
+      - TEAM_SIZE=${TEAM_SIZE:-4}
+      - ENABLE_TEAMS=true
+    volumes:
+      - ${DATA_VOLUME:-/var/lib/minigames/bedwars}:/data
+      - ${CONFIG_VOLUME:-/etc/minigames/bedwars}:/config
+    networks:
+      - ${NETWORK_NAME:-minigames-network}
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '${CPU_LIMIT:-1.0}'
+          memory: ${MEMORY_LIMIT:-2G}
+        reservations:
+          cpus: '${CPU_RESERVATION:-0.5}'
+          memory: ${MEMORY_RESERVATION:-1G}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:25565/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - "minigames.game-type=bedwars"
+      - "minigames.server-id=${SERVER_ID}"
+      - "minigames.map-id=${MAP_ID}"
+
+networks:
+  ${NETWORK_NAME:-minigames-network}:
+    external: true

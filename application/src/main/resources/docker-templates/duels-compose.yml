@@ -1,0 +1,42 @@
+version: '3.8'
+services:
+  duels-server:
+    image: ${DUELS_IMAGE:-duels-server:latest}
+    container_name: ${CONTAINER_NAME:-duels-server}
+    ports:
+      - "${PORT:-25565}:25565"
+    environment:
+      - GAME_TYPE=duels
+      - MAP_ID=${MAP_ID}
+      - SERVER_ID=${SERVER_ID}
+      - MAX_PLAYERS=${MAX_PLAYERS:-2}
+      - TEAM_SIZE=${TEAM_SIZE:-1}
+      - ENABLE_TEAMS=false
+    volumes:
+      - ${DATA_VOLUME:-/var/lib/minigames/duels}:/data
+      - ${CONFIG_VOLUME:-/etc/minigames/duels}:/config
+    networks:
+      - ${NETWORK_NAME:-minigames-network}
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '${CPU_LIMIT:-0.25}'
+          memory: ${MEMORY_LIMIT:-512M}
+        reservations:
+          cpus: '${CPU_RESERVATION:-0.1}'
+          memory: ${MEMORY_RESERVATION:-256M}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:25565/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - "minigames.game-type=duels"
+      - "minigames.server-id=${SERVER_ID}"
+      - "minigames.map-id=${MAP_ID}"
+
+networks:
+  ${NETWORK_NAME:-minigames-network}:
+    external: true

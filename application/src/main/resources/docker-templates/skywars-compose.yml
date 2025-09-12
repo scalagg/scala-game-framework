@@ -1,0 +1,42 @@
+version: '3.8'
+services:
+  skywars-server:
+    image: ${SKYWARS_IMAGE:-skywars-server:latest}
+    container_name: ${CONTAINER_NAME:-skywars-server}
+    ports:
+      - "${PORT:-25565}:25565"
+    environment:
+      - GAME_TYPE=skywars
+      - MAP_ID=${MAP_ID}
+      - SERVER_ID=${SERVER_ID}
+      - MAX_PLAYERS=${MAX_PLAYERS:-12}
+      - TEAM_SIZE=${TEAM_SIZE:-1}
+      - ENABLE_TEAMS=false
+    volumes:
+      - ${DATA_VOLUME:-/var/lib/minigames/skywars}:/data
+      - ${CONFIG_VOLUME:-/etc/minigames/skywars}:/config
+    networks:
+      - ${NETWORK_NAME:-minigames-network}
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '${CPU_LIMIT:-0.75}'
+          memory: ${MEMORY_LIMIT:-1.5G}
+        reservations:
+          cpus: '${CPU_RESERVATION:-0.25}'
+          memory: ${MEMORY_RESERVATION:-512M}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:25565/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - "minigames.game-type=skywars"
+      - "minigames.server-id=${SERVER_ID}"
+      - "minigames.map-id=${MAP_ID}"
+
+networks:
+  ${NETWORK_NAME:-minigames-network}:
+    external: true
