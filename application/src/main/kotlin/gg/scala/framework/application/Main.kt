@@ -1,7 +1,10 @@
 package gg.scala.framework.application
 
 import gg.scala.framework.application.deployment.DockerDeploymentConfig
-import gg.scala.framework.shared.game.GameType
+import gg.scala.framework.application.game.GameType
+import gg.scala.framework.application.game.ResourceLimits as GameResourceLimits
+import gg.scala.framework.application.game.PortRange
+import gg.scala.framework.application.game.ScalingConfig
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 
@@ -78,7 +81,15 @@ private suspend fun configureGameTypes(application: MinigamesManagerApplication)
         allowTeams = true,
         maxTeamSize = 4,
         minTeamSize = 1,
-        enabled = true
+        enabled = true,
+        resourceLimits = GameResourceLimits("1", "2Gi", "3Gi"),
+        portRange = PortRange(25565, 25585),
+        scalingConfig = ScalingConfig(
+            minInstances = 2,
+            maxInstances = 20,
+            scaleUpThreshold = 0.8,
+            scaleDownThreshold = 0.3
+        )
     )
     
     application.configureGameType(
@@ -113,7 +124,15 @@ private suspend fun configureGameTypes(application: MinigamesManagerApplication)
         allowTeams = false,
         maxTeamSize = 1,
         minTeamSize = 1,
-        enabled = true
+        enabled = true,
+        resourceLimits = GameResourceLimits("750m", "1.5Gi", "2Gi"),
+        portRange = PortRange(25585, 25605),
+        scalingConfig = ScalingConfig(
+            minInstances = 1,
+            maxInstances = 15,
+            scaleUpThreshold = 0.7,
+            scaleDownThreshold = 0.2
+        )
     )
     
     application.configureGameType(
@@ -148,7 +167,15 @@ private suspend fun configureGameTypes(application: MinigamesManagerApplication)
         allowTeams = false,
         maxTeamSize = 1,
         minTeamSize = 1,
-        enabled = true
+        enabled = true,
+        resourceLimits = GameResourceLimits("250m", "512Mi", "1Gi"),
+        portRange = PortRange(25605, 25625),
+        scalingConfig = ScalingConfig(
+            minInstances = 1,
+            maxInstances = 10,
+            scaleUpThreshold = 0.9,
+            scaleDownThreshold = 0.1
+        )
     )
     
     application.configureGameType(

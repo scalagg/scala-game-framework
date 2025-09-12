@@ -6,7 +6,7 @@ import gg.scala.framework.application.health.HealthCheckManager
 import gg.scala.framework.application.metrics.MetricsManager
 import gg.scala.framework.application.queue.QueueManager
 import gg.scala.framework.application.replication.ReplicationManager
-import gg.scala.framework.shared.game.GameType
+import gg.scala.framework.application.game.GameType
 import kotlinx.coroutines.*
 import org.slf4j.LoggerFactory
 import java.util.concurrent.ConcurrentHashMap

@@ -3,7 +3,7 @@ package gg.scala.framework.examples.spigot
 import gg.scala.framework.application.api.GameServerApi
 import gg.scala.framework.application.api.GameServerInfo
 import gg.scala.framework.application.api.GameServerStatus
-import gg.scala.framework.shared.game.GameType
+import gg.scala.framework.application.game.GameType
 import kotlinx.coroutines.*
 import org.bukkit.Bukkit
 import org.bukkit.command.Command

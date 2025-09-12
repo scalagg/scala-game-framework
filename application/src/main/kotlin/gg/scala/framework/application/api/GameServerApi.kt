@@ -1,7 +1,7 @@
 package gg.scala.framework.application.api
 
 import gg.scala.framework.application.deployment.UnifiedDeploymentManager
-import gg.scala.framework.shared.game.GameType
+import gg.scala.framework.application.game.GameType
 import kotlinx.coroutines.*
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -64,7 +64,7 @@ class GameServerApi(
                 creatorId = creatorId,
                 status = GameServerStatus.CREATING,
                 createdAt = System.currentTimeMillis(),
-                metadata = metadata,
+                metadata = metadata.toMutableMap(),
                 connectionInfo = null // Will be populated when server is ready
             )
             

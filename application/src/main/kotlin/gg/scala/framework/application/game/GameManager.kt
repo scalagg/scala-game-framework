@@ -1,6 +1,6 @@
 package gg.scala.framework.application.game
 
-import gg.scala.framework.shared.game.GameType
+import gg.scala.framework.application.game.GameType
 import kotlinx.coroutines.*
 import org.slf4j.LoggerFactory
 import java.util.*

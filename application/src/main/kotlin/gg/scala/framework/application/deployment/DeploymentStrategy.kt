@@ -1,6 +1,6 @@
 package gg.scala.framework.application.deployment
 
-import gg.scala.framework.shared.game.GameType
+import gg.scala.framework.application.game.GameType
 import kotlinx.coroutines.CoroutineScope
 
 /**

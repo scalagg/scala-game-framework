@@ -2,6 +2,7 @@ package gg.scala.framework.application.health
 
 import gg.scala.framework.application.deployment.UnifiedDeploymentManager
 import gg.scala.framework.application.game.GameManager
+import gg.scala.framework.application.game.GameType
 import gg.scala.framework.application.queue.QueueManager
 import gg.scala.framework.application.replication.ReplicationManager
 import kotlinx.coroutines.*
@@ -34,7 +35,7 @@ class HealthCheckManager(
             try {
                 // Check if queue manager is responsive
                 queueManager.getQueueStats(
-                    gg.scala.framework.shared.game.GameType("test", "Test"), 
+                    GameType("test", "Test"), 
                     1, 
                     "default"
                 )

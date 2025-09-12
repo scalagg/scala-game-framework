@@ -11,7 +11,7 @@ import com.velocitypowered.api.proxy.server.RegisteredServer
 import gg.scala.framework.application.api.GameServerApi
 import gg.scala.framework.application.api.GameServerInfo
 import gg.scala.framework.application.api.GameServerStatus
-import gg.scala.framework.shared.game.GameType
+import gg.scala.framework.application.game.GameType
 import kotlinx.coroutines.*
 import org.slf4j.Logger
 import java.util.*

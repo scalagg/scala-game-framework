@@ -1,7 +1,7 @@
 package gg.scala.framework.application.deployment
 
 import gg.scala.framework.application.config.ApplicationConfig
-import gg.scala.framework.shared.game.GameType
+import gg.scala.framework.application.game.GameType
 import io.kubernetes.client.openapi.ApiClient
 import io.kubernetes.client.openapi.Configuration
 import io.kubernetes.client.openapi.apis.AppsV1Api

@@ -4,7 +4,7 @@ import gg.scala.framework.application.api.GameServerApi
 import gg.scala.framework.application.api.GameServerInfo
 import gg.scala.framework.application.api.GameServerStatus
 import gg.scala.framework.application.deployment.UnifiedDeploymentManager
-import gg.scala.framework.shared.game.GameType
+import gg.scala.framework.application.game.GameType
 import kotlinx.coroutines.*
 import org.slf4j.LoggerFactory
 import java.net.http.HttpClient
